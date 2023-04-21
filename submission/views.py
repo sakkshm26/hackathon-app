@@ -66,6 +66,9 @@ def create_submission(request):
     if request.method == 'POST':
         serializer = SubmissionSerializer(data=request.data)
         if serializer.is_valid():
+            hackathon = Hackathon.objects.get(pk=serializer.validated_data['hackathon'].id)
+            if hackathon.submission_type != serializer.validated_data['type']:
+                return Response(f"Submission type should be {hackathon.submission_type} for this hackathon", status=status.HTTP_400_BAD_REQUEST)
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

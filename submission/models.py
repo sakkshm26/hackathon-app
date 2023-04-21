@@ -24,7 +24,7 @@ class Hackathon(models.Model):
 class Submission(models.Model):
     name = models.CharField(max_length=30)
     summary = models.CharField(max_length=300)
-    accepted = models.BooleanField(default=False)
+    type = models.CharField(choices=SUBMISSION_TYPE)
     hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
