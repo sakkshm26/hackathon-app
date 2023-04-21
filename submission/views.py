@@ -5,12 +5,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from submission.customauth import CustomAuthentication
+from django.contrib.auth.hashers import make_password
 
 ### User ###
 
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
+        request.data['password'] = make_password(request.data['password'])
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -44,9 +46,7 @@ def get_hackathons(request):
     if request.method == 'GET':
         hackathons = Hackathon.objects.all()
         serializer = HackathonSerializer(hackathons, many=True)
-        if serializer.is_valid():
-          return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data)
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -55,9 +55,7 @@ def get_enrolled_hackathons(request):
     if request.method == 'GET':
         enrolled_hackathons = Hackathon.objects.filter(registered_users=request.user)
         serializer = HackathonSerializer(enrolled_hackathons, many=True)
-        if (serializer.is_valid()):
-          return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 #### Submission ####
 
@@ -79,6 +77,4 @@ def get_user_submissions(request):
     if request.method == 'GET':
         user_submissions = Submission.objects.filter(created_by=request.user)
         serializer = SubmissionSerializer(user_submissions, many=True)
-        if serializer.is_valid():
-          return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)

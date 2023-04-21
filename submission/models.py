@@ -4,9 +4,9 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 
 SUBMISSION_TYPE = [
-    "IMAGE",
-    "FILE",
-    "LINK",
+    ("IMAGE", "IMAGE"),
+    ("FILE", "FILE"),
+    ("LINK", "LINK"),
 ]
 
 class Hackathon(models.Model):
@@ -14,6 +14,7 @@ class Hackathon(models.Model):
     description = models.CharField(max_length=600)
     background_image_url = models.CharField()
     hackathon_image_url = models.CharField()
+    submission_type = models.CharField(choices=SUBMISSION_TYPE)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     reward_prize = models.IntegerField(validators=[MinValueValidator(1)])
