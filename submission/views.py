@@ -12,8 +12,8 @@ from django.contrib.auth.hashers import make_password
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
-        request.data['password'] = make_password(request.data['password'])
-        serializer = UserSerializer(data=request.data)
+        data = {'username': request.data['username'], 'password': make_password(request.data['password'])}
+        serializer = UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -67,6 +67,8 @@ def create_submission(request):
         serializer = SubmissionSerializer(data=request.data)
         if serializer.is_valid():
             hackathon = Hackathon.objects.get(pk=serializer.validated_data['hackathon'].id)
+            if not hackathon.registered_users.all().filter(id=request.user.id).exists():
+                return Response("Cannot create a submission since user is not enrolled in the hackathon", status=status.HTTP_400_BAD_REQUEST)
             if hackathon.submission_type != serializer.validated_data['type']:
                 return Response(f"Submission type should be {hackathon.submission_type} for this hackathon", status=status.HTTP_400_BAD_REQUEST)
             serializer.save(created_by=request.user)
